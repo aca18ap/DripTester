@@ -1,0 +1,99 @@
+scalar DateTime
+
+enum Status {
+  UNKNOWN
+  OK
+  WARN
+  KO
+}
+
+type User {
+  id: Int!
+  username: String!
+  location: Location
+  devices: [Device]!
+  # device(id: Int): Device!
+  groups: [Group]!
+  # group(id: Int): Group!
+}
+
+type Location {
+  latitude: Float!
+  longitude: Float!
+}
+
+type Device {
+  id: String!
+  name: String
+  owner: User!
+  status: Status!
+  glances: [Glance]!
+  location: Location
+  data(from: DateTime): [DataEntry]!
+  latest: DataEntry
+}
+
+type Glance {
+  status: Status!
+  title: String!
+  text: String
+}
+
+type Group {
+  id: Int!
+  name: String!
+  members: [User]!
+  devices: [Device]!
+}
+
+type DataEntry {
+  id: Int!
+  timestamp: DateTime!
+  device: Device!
+
+  waterTemp: Float
+  airTemp: Float
+  humidity: Float
+  light: Float
+  ph: Float
+  rssi: Float
+  beds: [BedEntry]!
+}
+
+type BedEntry {
+  id: Int!
+  dataEntry: DataEntry!
+  status: Int
+  level: Float
+}
+
+type UnregisteredDevice {
+  id: String!
+  # timestamp: DateTime!
+}
+
+type Query {
+  user(id: Int): User!
+  # groups: [Group]!
+  device(id: String): Device!
+  group(id: Int): Group!
+  unregisteredDevices: [UnregisteredDevice]!
+  self: User
+}
+
+type Mutation {
+  login(username: String!, password: String!): String
+  register(username: String!, password: String!): Boolean
+  refresh: String
+
+  createGroup(name: String!): Group
+  leaveGroup(id: Int!): Group
+  
+  addUserToGroup(username: String!, groupId: Int!): Group
+  addDeviceToGroup(deviceId: String!, groupId: Int!): Group
+  removeDeviceFromGroup(deviceId: String!, groupId: Int!): Group
+
+  addDevice(id: String!): Device
+  removeDevice(id: String!): Boolean
+  renameDevice(id: String!, name: String!): Device
+}

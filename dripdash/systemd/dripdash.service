@@ -1,0 +1,13 @@
+# /etc/systemd/system/dripdash.service
+[Service]
+ExecStart=/bin/bash -c "cd /home/ubuntu/drip-dash && /usr/bin/npm run production"
+Restart=always
+RestartSec=10
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=nodejs-dripdash
+User=ubuntu
+Type=simple
+
+[Install]
+WantedBy=multi-user.target

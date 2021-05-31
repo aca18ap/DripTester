@@ -1,0 +1,64 @@
+datasource db {
+  provider = ["sqlite", "postgresql"]
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id          Int         @default(autoincrement()) @id
+  username    String      @unique
+  passHash    String
+  latitude    Float?
+  longitude   Float?
+  devices     Device[]
+  groups      Group[]
+}
+
+model Device {
+  id          String      @id
+  name        String?
+  owner       User        @relation(fields: [ownerId], references: [id])
+  ownerId     Int
+  groups      Group[]
+  latitude    Float?
+  longitude   Float?
+  data        DataEntry[]
+}
+
+model DataEntry {
+  id          Int         @default(autoincrement()) @id
+  timestamp   DateTime    @default(now())
+  device      Device      @relation(fields: [deviceId], references: [id])
+  deviceId    String
+
+  waterTemp   Float?
+  airTemp     Float?
+  humidity    Float?
+  light       Float?
+  ph          Float?
+  rssi        Float?
+  beds        Bed[]
+}
+
+model Bed {
+  id          Int         @default(autoincrement()) @id
+  dataEntry   DataEntry   @relation(fields: [dataEntryId], references: [id])
+  dataEntryId Int
+  status      Int?
+  level       Float?
+}
+
+model Group {
+  id          Int         @default(autoincrement()) @id
+  name        String
+  members     User[]
+  devices     Device[]
+}
+
+model UnregisteredDevice {
+  id          String      @id
+  online      DateTime
+}
